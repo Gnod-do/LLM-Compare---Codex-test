@@ -19,7 +19,8 @@ export type Action =
   | { type: 'retry'; turnId: string; modelId: string; now: number }
   | { type: 'event'; turnId: string; modelId: string; event: ChatEvent }
   | { type: 'stopAll' }
-  | { type: 'reset' };
+  | { type: 'reset' }
+  | { type: 'load'; state: State };
 
 export const MIN_COLUMNS = 2;
 export const MAX_COLUMNS = 4;
@@ -89,6 +90,8 @@ export function reducer(state: State, action: Action): State {
       };
     case 'reset':
       return { ...state, turns: [] };
+    case 'load':
+      return action.state;
   }
 }
 

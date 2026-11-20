@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { AnswerCell } from '../src/components/AnswerCell';
 import { answer, metrics } from './fixtures';
 
@@ -51,5 +51,16 @@ describe('AnswerCell', () => {
   it('marks stopped answers', () => {
     render(<AnswerCell answer={answer({ status: 'stopped', text: 'part' })} onRetry={() => {}} />);
     expect(screen.getByText('остановлено')).toBeTruthy();
+  });
+
+  it('reveals streaming text word by word', () => {
+    vi.useFakeTimers();
+    const { container } = render(<AnswerCell answer={answer({ status: 'typing', text: 'alpha beta gamma' })} onRetry={() => {}} />);
+    expect(container.querySelector('.md')?.textContent ?? '').toBe('');
+    act(() => { vi.advanceTimersByTime(35); });
+    expect(container.querySelector('.md')?.textContent?.trim()).toBe('alpha');
+    act(() => { vi.advanceTimersByTime(1000); });
+    expect(container.querySelector('.md')?.textContent).toBe('alpha beta gamma');
+    vi.useRealTimers();
   });
 });

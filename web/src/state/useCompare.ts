@@ -67,5 +67,11 @@ export function useCompare() {
     dispatch({ type: 'reset' });
   }, []);
 
-  return { state, models, modelsError, busy: isBusy(state), send, retry, stop, addColumn, removeColumn, reset };
+  const load = useCallback((next: State) => {
+    inflight.current.forEach((c) => c.abort());
+    inflight.current.clear();
+    dispatch({ type: 'load', state: next });
+  }, []);
+
+  return { state, models, modelsError, busy: isBusy(state), send, retry, stop, addColumn, removeColumn, reset, load };
 }

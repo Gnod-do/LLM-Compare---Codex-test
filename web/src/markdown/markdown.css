@@ -1,5 +1,7 @@
 .md { font-size: 15px; line-height: 22px; overflow-wrap: anywhere; }
-.md > * { margin: 0 0 14px; }
+.md > * { margin: 0 0 14px; animation: md-in .28s ease-out; }
+@keyframes md-in { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .md > * { animation: none; } }
 .md > *:last-child { margin-bottom: 0; }
 .md h2, .md h3, .md h4 { font-weight: 600; margin-top: 20px; }
 .md h2 { font-size: 18px; line-height: 24px; }

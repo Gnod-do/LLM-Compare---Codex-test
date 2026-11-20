@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { useCompare } from './state/useCompare';
 import { MAX_COLUMNS } from './state/reducer';
 import { TopBar } from './components/TopBar';
@@ -8,6 +8,7 @@ import { TurnRow } from './components/TurnRow';
 import { Composer } from './components/Composer';
 import { MobileView } from './components/MobileView';
 import { useMediaQuery } from './hooks/useMediaQuery';
+import { decodeShare, encodeShare } from './lib/share';
 import './components/layout.css';
 import './components/answer.css';
 import './components/mobile.css';
@@ -18,6 +19,29 @@ export function App() {
   const canAdd = columns.length < MAX_COLUMNS;
   const isMobile = useMediaQuery('(max-width: 767px)');
 
+  // open a shared comparison from #s=<data>, then drop the hash so new questions don't look shared
+  const { load } = c;
+  useEffect(() => {
+    const m = window.location.hash.match(/^#s=([\w-]+)$/);
+    if (!m) return;
+    void decodeShare(m[1]).then((shared) => {
+      if (shared) load(shared);
+      history.replaceState(null, '', window.location.pathname + window.location.search);
+    });
+  }, [load]);
+
+  const stateNow = c.state;
+  const share = useCallback(async () => {
+    try {
+      const data = await encodeShare(stateNow);
+      await navigator.clipboard.writeText(`${window.location.origin}${window.location.pathname}#s=${data}`);
+      return true;
+    } catch {
+      return false;
+    }
+  }, [stateNow]);
+  const canShare = !c.busy && turns.some((t) => Object.values(t.answers).some((a) => a.status === 'done'));
+
   const lastTurnRef = useRef<HTMLDivElement>(null);
   const turnCount = turns.length;
   useEffect(() => {
@@ -26,7 +50,7 @@ export function App() {
 
   return (
     <div className="page">
-      <TopBar onReset={c.reset} compact={isMobile} />
+      <TopBar onReset={c.reset} onShare={share} canShare={canShare} compact={isMobile} />
       {isMobile ? (
         <main className="mobile-main">
           {c.modelsError && <div className="banner">Не удалось загрузить модели: {c.modelsError}</div>}
