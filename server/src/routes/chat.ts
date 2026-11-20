@@ -5,6 +5,7 @@ import type { Upstream } from '../upstream.js';
 import type { HistoryItem } from '../types.js';
 import { buildPrompt } from '../prompt.js';
 import { runChat } from '../chat.js';
+import { createRateLimiter } from '../rateLimit.js';
 
 type Body = { model: string; question: string; history: HistoryItem[] };
 
@@ -32,10 +33,12 @@ const schema = {
 } as const;
 
 export function registerChatRoute(app: FastifyInstance, deps: { config: Config; upstream: Upstream; catalog: ModelCatalog }) {
+  const limiter = createRateLimiter({ limit: deps.config.rateLimitPerHour, windowMs: 60 * 60 * 1000 });
   app.post<{ Body: Body }>('/api/chat', { schema }, async (req, reply) => {
     const { model: modelId, history } = req.body;
     const question = req.body.question.trim();
     if (!question) return reply.status(400).send({ error: 'Вопрос не может быть пустым' });
+    if (!limiter.hit(req.ip)) return reply.status(429).send({ error: 'Слишком много запросов. Попробуйте позже.' });
 
     let models;
     try {

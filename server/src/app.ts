@@ -7,7 +7,7 @@ import { registerChatRoute } from './routes/chat.js';
 import { registerStatic } from './routes/static.js';
 
 export function buildApp({ config, upstream, staticDir }: { config: Config; upstream: Upstream; staticDir?: string }): FastifyInstance {
-  const app = Fastify({ logger: !process.env.VITEST });
+  const app = Fastify({ logger: !process.env.VITEST, trustProxy: true });
   const catalog = createCatalog(upstream);
   registerModelsRoute(app, catalog);
   registerChatRoute(app, { config, upstream, catalog });

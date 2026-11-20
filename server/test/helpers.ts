@@ -3,7 +3,7 @@ import type { ModelInfo, UpstreamEvent } from '../src/types.js';
 import type { Config } from '../src/config.js';
 
 export const testConfig: Config = {
-  apiUrl: 'http://upstream.test', apiKey: 'k', mock: true, port: 0, idleTimeoutMs: 60000,
+  apiUrl: 'http://upstream.test', apiKey: 'k', mock: true, port: 0, idleTimeoutMs: 60000, rateLimitPerHour: 0,
 };
 
 export const sampleModel: ModelInfo = {

@@ -57,6 +57,18 @@ IDLE_TIMEOUT_MS=60000
 
 Токен читается только сервером и никогда не попадает в браузер. `.env` в `.gitignore`.
 
+## Деплой на Vercel
+
+В репозитории есть `vercel.json`: Vercel собирает оба пакета (`npm run build`), отдаёт `web/dist` как статику, а все `/api/*` обрабатывает одна функция `api/index.js` (тот же Fastify-сервер). Ответы стримятся.
+
+1. Импортируйте репозиторий на vercel.com → New Project. Framework Preset — **Other**, Root Directory — корень репозитория. Остальное берётся из `vercel.json`.
+2. В Settings → Environment Variables добавьте:
+   - `LLM_API_KEY` — токен
+   - `MOCK_LLM` = `0`
+   - `LLM_API_URL` = `http://llm.codex.so`
+   - `RATE_LIMIT_PER_HOUR` = `30` — чтобы публичное демо не съело лимит токена
+3. Deploy. Проверка: `https://<проект>.vercel.app/api/models` должен вернуть список моделей.
+
 ## Тесты
 
 ```bash

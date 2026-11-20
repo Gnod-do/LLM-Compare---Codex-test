@@ -4,6 +4,8 @@ export type Config = {
   mock: boolean;
   port: number;
   idleTimeoutMs: number;
+  /** max /api/chat requests per client IP per hour; 0 = unlimited */
+  rateLimitPerHour: number;
 };
 
 export function loadConfig(env: NodeJS.ProcessEnv): Config {
@@ -18,5 +20,6 @@ export function loadConfig(env: NodeJS.ProcessEnv): Config {
     mock,
     port: Number(env.PORT) || 3001,
     idleTimeoutMs: Number(env.IDLE_TIMEOUT_MS) || 60000,
+    rateLimitPerHour: Number(env.RATE_LIMIT_PER_HOUR) || 0,
   };
 }
